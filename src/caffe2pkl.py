@@ -68,8 +68,8 @@ def load_params(net, tfstyle=True):
                 params['bn5c_branch2a' + '/gamma'] = param[0].data
                 params['bn5c_branch2a' + '/beta'] = param[1].data
             else:
-                params[name + '/weights'] = dimension_transform(param[0].data) if tfstyle else param[0].data
-                params[name+'/biases'] = param[1].data
+                params[name + '/kernel'] = dimension_transform(param[0].data) if tfstyle else param[0].data
+                params[name+'/bias'] = param[1].data
         elif len(param) == 3:
             params[name + '/moving_mean'] = param[0].data / param[2].data
             params[name + '/moving_variance'] = param[1].data / param[2].data

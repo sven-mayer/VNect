@@ -43,26 +43,18 @@ class VNectEstimator:
         self.filter_2d = [(OneEuroFilter(**config_2d), OneEuroFilter(**config_2d)) for _ in range(self._joints_num)]
         self.filter_3d = [(OneEuroFilter(**config_3d), OneEuroFilter(**config_3d), OneEuroFilter(**config_3d))
                           for _ in range(self._joints_num)]
+        
         # load pretrained VNect model
-        self.sess = tf.Session()
-        saver = tf.train.import_meta_graph('../models/tf_model/vnect_tf.meta' if os.getcwd().endswith('src') else
-                                           './models/tf_model/vnect_tf.meta')
-        saver.restore(self.sess, tf.train.latest_checkpoint('../models/tf_model/'if os.getcwd().endswith('src') else
-                                                            './models/tf_model/'))
-        graph = tf.get_default_graph()
-        self.input_crops = graph.get_tensor_by_name('Placeholder:0')
-        self.heatmap = graph.get_tensor_by_name('split_2:0')
-        self.x_heatmap = graph.get_tensor_by_name('split_2:1')
-        self.y_heatmap = graph.get_tensor_by_name('split_2:2')
-        self.z_heatmap = graph.get_tensor_by_name('split_2:3')
+        self.model = tf.keras.models.load_model('models/tf_model/vnect_tf')
+        
         print('VNectEstimator initialized.')
 
     def __call__(self, img_input):
         t = time.time()
         img_batch = self._gen_input_batch(img_input, self._box_size, self.scales)
         # inference
-        hm, xm, ym, zm = self.sess.run([self.heatmap, self.x_heatmap, self.y_heatmap, self.z_heatmap],
-                                       {self.input_crops: img_batch})
+        hm, xm, ym, zm = self.model.predict(img_batch)
+        
         # average scale outputs
         hm_size = self._box_size // self._hm_factor
         hm_avg = np.zeros((hm_size, hm_size, self._joints_num))

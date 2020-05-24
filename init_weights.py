@@ -10,19 +10,23 @@ import tensorflow as tf
 from src.caffe2pkl import caffe2pkl
 from src.vnect_model import VNect
 
+#tf.compat.v1.disable_eager_execution()
+
 
 def init_tf_weights(pfile, spath, model):
     # configurations
     PARAMSFILE = pfile
     SAVERPATH = spath
 
-    if not tf.gfile.Exists(SAVERPATH):
-        tf.gfile.MakeDirs(SAVERPATH)
+    if not tf.io.gfile.exists(SAVERPATH):
+        tf.io.gfile.makedirs(SAVERPATH)
 
-    with tf.Session() as sess:
-        saver = tf.train.Saver()
-        model.load_weights(sess, PARAMSFILE)
-        saver.save(sess, os.path.join(SAVERPATH, 'vnect_tf'))
+    #saver = tf.compat.v1.train.Saver()
+    #with tf.compat.v1.Session() as sess:
+        
+    model.load_weights(PARAMSFILE)
+    model.getModel().save(os.path.join(SAVERPATH, 'vnect_tf')) 
+        #saver.save(sess, os.path.join(SAVERPATH, 'vnect_tf'))
 
 
 # caffe model basepath
