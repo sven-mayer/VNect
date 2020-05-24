@@ -52,7 +52,8 @@ class VNectEstimator:
         t = time.time()
         img_batch = self._gen_input_batch(img_input, self._box_size, self.scales)
         # inference
-        hm, x_hm, y_hm, z_hm = self.model.predict(img_batch)
+        res = self.model.predict(img_batch)
+        hm, x_hm, y_hm, z_hm = np.split(res, [21, 2*21, 3*21], axis=-1)
                 
         # Average scale outputs
         hm_size = self._box_size // self._hm_factor

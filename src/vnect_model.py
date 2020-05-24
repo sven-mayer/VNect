@@ -154,9 +154,9 @@ class VNect:
         self.res5c_branch2b = tf.keras.layers.Conv2D(128, (3,3), padding='same', activation="relu", bias_initializer='zeros', name='res5c_branch2b')(self.res5c_branch2a_feat)
         self.res5c_branch2c = tf.keras.layers.Conv2D(4*21, (1,1), padding='valid', activation=None, use_bias=False, name='res5c_branch2c')(self.res5c_branch2b)
         
-        self.heatmap, self.x_heatmap, self.y_heatmap, self.z_heatmap = tf.split(self.res5c_branch2c, num_or_size_splits=4, axis=3)
+        #self.heatmap, self.x_heatmap, self.y_heatmap, self.z_heatmap = tf.split(self.res5c_branch2c, num_or_size_splits=4, axis=3)
         
-        self.model = tf.keras.models.Model(self.input_holder, [self.heatmap, self.x_heatmap, self.y_heatmap, self.z_heatmap])
+        self.model = tf.keras.models.Model(self.input_holder, self.res5c_branch2c)
         self.model.summary()
         
         
