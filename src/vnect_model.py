@@ -21,10 +21,9 @@ class VNect:
     def _build_network(self):
         # Conv
         self.conv1 = tf.keras.layers.Conv2D(64, (7,7), padding='same',  activation="relu", strides=(2,2), name='conv1')(self.input_holder)
-        self.pool1 = tf.keras.layers.MaxPool2D(pool_size=(3,3), padding='same', name='pool1')(self.conv1)
+        self.pool1 = tf.keras.layers.MaxPool2D(pool_size=(3,3), strides=(2, 2), padding='same', name='pool1')(self.conv1)
 
         # Residual block 2a
-        
         self.res2a_branch2a = tf.keras.layers.Conv2D(64, (1,1), padding='valid', activation="relu", name='res2a_branch2a')(self.pool1)
         self.res2a_branch2b = tf.keras.layers.Conv2D(64, (3,3), padding='same', activation="relu",name='res2a_branch2b')(self.res2a_branch2a)
         self.res2a_branch2c = tf.keras.layers.Conv2D(256, (1,1), padding='valid', activation=None, name='res2a_branch2c')(self.res2a_branch2b)
@@ -134,13 +133,11 @@ class VNect:
         self.res5b_branch2c_new = tf.keras.layers.Conv2D(256, (1,1), padding='valid', activation="relu", name='res5b_branch2c_new')(self.res5b_branch2b_new)
 
         # Transpose Conv
-        self.res5c_branch1a = tf.keras.layers.Conv2DTranspose(3*21, (4,4), activation=None, strides=2, padding='same', use_bias=False, name='res5c_branch1a')(self.res5b_branch2c_new)
+        self.res5c_branch1a = tf.keras.layers.Conv2DTranspose(3*21, (4,4), activation=None, strides=(2,2), padding='same', use_bias=False, name='res5c_branch1a')(self.res5b_branch2c_new)
         
-        # TODO: unclear why relu is after the batchNorm. From Figure 5 this is unclear. 
-        self.res5c_branch2a = tf.keras.layers.Conv2DTranspose(128, (4,4), activation=None,  strides=2, padding='same', use_bias=False, name='res5c_branch2a')(self.res5b_branch2c_new)
+        self.res5c_branch2a = tf.keras.layers.Conv2DTranspose(128, (4,4), activation=None,  strides=(2,2), padding='same', use_bias=False, name='res5c_branch2a')(self.res5b_branch2c_new)
         self.bn5c_branch2a = tf.keras.layers.BatchNormalization(scale=True, trainable=self.is_training, name='bn5c_branch2a')(self.res5c_branch2a)
         self.bn5c_branch2a = tf.nn.relu(self.bn5c_branch2a)
-
         
         # Start BL block in Figure 5 
         self.res5c_delta_x, self.res5c_delta_y, self.res5c_delta_z = tf.split(self.res5c_branch1a, num_or_size_splits=3, axis=3)
@@ -154,7 +151,7 @@ class VNect:
         self.res5c_branch2a_feat = tf.concat([self.bn5c_branch2a, self.res5c_delta_x, self.res5c_delta_y, self.res5c_delta_z, self.res5c_bone_length], axis=3, name='res5c_branch2a_feat')
 
         # Last two layers in Fig 5
-        self.res5c_branch2b = tf.keras.layers.Conv2D(128, (3,3), padding='same', activation="relu", name='res5c_branch2b')(self.res5c_branch2a_feat)
+        self.res5c_branch2b = tf.keras.layers.Conv2D(128, (3,3), padding='same', activation="relu", bias_initializer='zeros', name='res5c_branch2b')(self.res5c_branch2a_feat)
         self.res5c_branch2c = tf.keras.layers.Conv2D(4*21, (1,1), padding='valid', activation=None, use_bias=False, name='res5c_branch2c')(self.res5c_branch2b)
         
         self.heatmap, self.x_heatmap, self.y_heatmap, self.z_heatmap = tf.split(self.res5c_branch2c, num_or_size_splits=4, axis=3)
