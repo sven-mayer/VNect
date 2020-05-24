@@ -126,6 +126,7 @@ class VNectEstimator:
             joints_3d[i, 1] = self.filter_3d[i][1](joints_3d[i, 1], time.time())
             joints_3d[i, 2] = self.filter_3d[i][2](joints_3d[i, 2], time.time())
         return joints_2d, joints_3d
+    
 
 
 

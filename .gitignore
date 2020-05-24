@@ -1,5 +1,6 @@
 **/__pycache__/
 /.idea/
+.ipynb_checkpoints/
 
 # ignore caffe model
 /models/caffe_model/*
@@ -8,3 +9,6 @@
 # ignore tensorflow model
 /models/tf_model/*
 !/models/tf_model/README.md
+
+/mpi_inf_3dhp/*
+mpi_inf_3dhp.zip
